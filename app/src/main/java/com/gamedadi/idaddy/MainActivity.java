@@ -32,7 +32,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private boolean isRecording;
     private MediaRecorder mRecorder;
     private String mFileName;
-    private final String SOUND_FILE = "/sdcard/hopeaudio.mp4";
+    private final String SOUND_FILE = "/sdcard/hopeaudio.m4a";
     private String VIDEO_FILE;
     private final String VIDEO_FILE_NAME = "hopevideo.mp4";
     private final String MIX_FILE = "/sdcard/hope.mp4";
