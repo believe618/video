@@ -2,6 +2,7 @@ package com.gamedadi.idaddy;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -13,6 +14,7 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.androidleaf.audiorecord.RecordAct;
 import com.coremedia.iso.boxes.Container;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Track;
@@ -28,7 +30,7 @@ import java.io.InputStream;
  * Created by DavidLee on 2016/2/25.
  */
 public class MainActivity extends Activity implements View.OnClickListener {
-    private Button startBtn, startRecordingBtn, stopRecordingBtn, playBtn, playAudioBtn;
+    private Button startBtn, startRecordingBtn, stopRecordingBtn, playBtn, playAudioBtn, startNewBtn;
     private boolean isRecording;
     private MediaRecorder mRecorder;
     private String mFileName;
@@ -54,11 +56,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
         startRecordingBtn = (Button) findViewById(R.id.startRecordingBtn);
         stopRecordingBtn = (Button) findViewById(R.id.stopRecordingBtn);
         startBtn = (Button) findViewById(R.id.startBtn);
+        startNewBtn = (Button) findViewById(R.id.startNewBtn);
         startBtn.setOnClickListener(this);
         startRecordingBtn.setOnClickListener(this);
         stopRecordingBtn.setOnClickListener(this);
         playBtn.setOnClickListener(this);
         playAudioBtn.setOnClickListener(this);
+        startNewBtn.setOnClickListener(this);
 
         videoView = (VideoView) findViewById(R.id.videoView);
         //初始化mediaController
@@ -203,8 +207,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         Movie countVideo = MovieCreator.build(/*video*/audioEnglish);
         Movie countAudioEnglish = MovieCreator.build(/*audioEnglish*/video);
-        Track audioTrackEnglish = countAudioEnglish.getTracks().get(0);
-        countVideo.addTrack(audioTrackEnglish);
+        Track audioTrack2English = countAudioEnglish.getTracks().get(0);
+        countVideo.addTrack(audioTrack2English);
         Container out = new DefaultMp4Builder().build(countVideo);
         FileOutputStream fos = new FileOutputStream(new File(MIX_FILE));
         out.writeContainer(fos.getChannel());
@@ -239,6 +243,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.playAudioBtn:
                 playAudio();
+                break;
+            case R.id.startNewBtn:
+                Intent inten = new Intent(MainActivity.this, RecordAct.class);
+                MainActivity.this.startActivity(inten);
                 break;
         }
     }
