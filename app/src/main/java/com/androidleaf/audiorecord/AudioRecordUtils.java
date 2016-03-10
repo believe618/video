@@ -18,6 +18,8 @@ import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import de.greenrobot.event.EventBus;
+
 public class AudioRecordUtils {
 
 	private final int audioSource = MediaRecorder.AudioSource.MIC;
@@ -210,6 +212,7 @@ public class AudioRecordUtils {
 				mProgressDialog.cancel();
 				mProgressDialog.dismiss();
 			}
+			EventBus.getDefault().post(new FinishEncodeEvent());
 		}
 	}
 
