@@ -5,9 +5,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 
 import de.greenrobot.event.EventBus;
 
@@ -116,7 +117,7 @@ public class RecordAct extends Activity implements OnClickListener {
     /**
      * 最大录音长度
      */
-    private static final int MAX_LENGTH = 300 * 1000;
+    private static int MAX_LENGTH = 300 * 1000;
 
     private Handler handler = new Handler();
 
@@ -152,6 +153,9 @@ public class RecordAct extends Activity implements OnClickListener {
     private String VIDEO_FILE;
     private final String MIX_FILE = "/sdcard/hope.mp4";
     private String SOUND_FILE;
+    private int duration;
+    private TextView totalTV;
+    private LinearLayout recordLL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +167,8 @@ public class RecordAct extends Activity implements OnClickListener {
 
     public void initView() {
         //视频
+        recordLL = (LinearLayout) findViewById(R.id.recordLL);
+        totalTV = (TextView) findViewById(R.id.totalTV);
         videoView = (VideoView) findViewById(R.id.videoView);
         //初始化mediaController
         mediaController = new MediaController(this);
@@ -218,6 +224,7 @@ public class RecordAct extends Activity implements OnClickListener {
         popAddWindow.setBackgroundDrawable(new BitmapDrawable());
 
         testCopy(this);
+        initVideoView(VIDEO_FILE);
     }
 
     public void testCopy(Context context) {
@@ -251,12 +258,32 @@ public class RecordAct extends Activity implements OnClickListener {
         SOUND_FILE = FileUtils.getM4aFilePath(audioRecordFileName);
     }
 
-    private void playVideo(String fileName) {
+    private void initVideoView(String fileName) {
         File vFile = new File(fileName);
         if (vFile.exists()) {//如果文件存在
             videoView.setVideoPath(vFile.getAbsolutePath());
             //让videoView获得焦点
             videoView.requestFocus();
+            videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    duration = videoView.getDuration();
+                    MAX_LENGTH = duration;
+                    SimpleDateFormat formatter = new SimpleDateFormat("mm:ss");//初始化Formatter的转换格式。
+                    String hms = formatter.format(duration);
+                    totalTV.setText(hms);
+                }
+            });
+            Toast.makeText(this, "video  exists>>>", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "video does not exists...", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void playVideo(String fileName) {
+        File vFile = new File(fileName);
+        if (vFile.exists()) {//如果文件存在
+            //让videoView获得焦点
             videoView.start();
             Toast.makeText(this, "video  exists>>>", Toast.LENGTH_LONG).show();
         } else {
@@ -264,7 +291,7 @@ public class RecordAct extends Activity implements OnClickListener {
         }
     }
 
-    private void pauseVideo(String fileName){
+    private void pauseVideo(String fileName) {
         File vFile = new File(fileName);
         if (vFile.exists()) {//如果文件存在
             videoView.pause();
@@ -274,7 +301,7 @@ public class RecordAct extends Activity implements OnClickListener {
         }
     }
 
-    private void resumeVideo(String fileName){
+    private void resumeVideo(String fileName) {
         File vFile = new File(fileName);
         if (vFile.exists()) {//如果文件存在
             videoView.start();
@@ -403,7 +430,7 @@ public class RecordAct extends Activity implements OnClickListener {
         recordContinue.setBackground(null);
         recordContinue.setVisibility(View.GONE);
         layoutListen.setVisibility(View.GONE);
-        tvRecordTime.setVisibility(View.VISIBLE);
+        recordLL.setVisibility(View.VISIBLE);
         audioRecordNextImage.setImageResource(R.drawable.btn_record_icon_complete);
         audioRecordNextText.setText(R.string.record_over);
         btnRecord.setBackgroundResource(R.drawable.record_round_blue_bg);
@@ -461,7 +488,7 @@ public class RecordAct extends Activity implements OnClickListener {
     private void showListen() {
         layoutListen.setVisibility(View.VISIBLE);
         tvLength.setText(TimeUtils.convertMilliSecondToMinute2(voiceLength));
-        tvRecordTime.setVisibility(View.GONE);
+        recordLL.setVisibility(View.GONE);
         resetRecord.setVisibility(View.VISIBLE);
         recordOver.setVisibility(View.INVISIBLE);
         recordContinue.setVisibility(View.VISIBLE);
@@ -510,7 +537,7 @@ public class RecordAct extends Activity implements OnClickListener {
         EventBus.getDefault().unregister(this);
     }
 
-    public void onEventMainThread(FinishEncodeEvent event){
+    public void onEventMainThread(FinishEncodeEvent event) {
         try {
             mix();
         } catch (IOException e) {
