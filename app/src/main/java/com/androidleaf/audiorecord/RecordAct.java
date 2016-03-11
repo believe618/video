@@ -148,7 +148,7 @@ public class RecordAct extends Activity implements OnClickListener {
 
     //视频
     private VideoView videoView;
-    private MediaController mediaController;
+    private MyMediaController mediaController;
     private final String VIDEO_FILE_NAME = "hopevideo.mp4";
     private String VIDEO_FILE;
     private final String MIX_FILE = "/sdcard/hope.mp4";
@@ -171,11 +171,13 @@ public class RecordAct extends Activity implements OnClickListener {
         totalTV = (TextView) findViewById(R.id.totalTV);
         videoView = (VideoView) findViewById(R.id.videoView);
         //初始化mediaController
-        mediaController = new MediaController(this);
+        mediaController = new MyMediaController(this);
         //将videoView与mediaController建立关联
         videoView.setMediaController(mediaController);
         //将mediaController与videoView建立关联
         mediaController.setMediaPlayer(videoView);
+        videoView.setEnabled(false);
+        mediaController.setVisibility(View.GONE);
 
         //音频录音的文件名称
         audioRecordFileName = TimeUtils.getTimestamp();
